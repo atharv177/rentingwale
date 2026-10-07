@@ -1,0 +1,41 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "RentingWale: build",
+			"type": "shell",
+			"command": "cmd.exe",
+			"args": [
+				"/c",
+				"set PATH=C:\\Program Files\\nodejs;%PATH% && npm.cmd run build"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "build"
+		},
+		{
+			"label": "RentingWale: database setup",
+			"type": "shell",
+			"command": "cmd.exe",
+			"args": [
+				"/c",
+				"set PATH=C:\\Program Files\\nodejs;%PATH% && docker compose up -d db && npx.cmd prisma migrate dev --name init && npm.cmd run db:seed"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "RentingWale: dev server",
+			"type": "shell",
+			"command": "cmd.exe",
+			"args": [
+				"/c",
+				"set PATH=C:\\Program Files\\nodejs;%PATH% && npm.cmd run dev"
+			],
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}

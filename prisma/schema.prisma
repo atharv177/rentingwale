@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum BookingStatus {
+  CONFIRMED
+  ACTIVE
+  RETURNED
+  CANCELLED
+}
+
+model Product {
+  id              String        @id @default(cuid())
+  name            String        @unique
+  category        String
+  description     String?
+  dailyRate       Decimal       @db.Decimal(10, 2)
+  securityDeposit Decimal       @default(0) @db.Decimal(10, 2)
+  quantity        Int           @default(1)
+  condition       String        @default("Good")
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  bookingItems    BookingItem[]
+
+  @@index([category])
+  @@index([name])
+}
+
+model Customer {
+  id        String    @id @default(cuid())
+  name      String
+  email     String?   @unique
+  phone     String    @unique
+  address   String?
+  createdAt DateTime  @default(now())
+  bookings  Booking[]
+
+  @@index([name])
+}
+
+model Booking {
+  id             String        @id @default(cuid())
+  customerId     String
+  startDate      DateTime      @db.Date
+  endDate        DateTime      @db.Date
+  status         BookingStatus @default(CONFIRMED)
+  rentalTotal    Decimal       @db.Decimal(10, 2)
+  depositTotal   Decimal       @db.Decimal(10, 2)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  customer       Customer      @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  items          BookingItem[]
+
+  @@index([startDate, endDate, status])
+  @@index([customerId])
+}
+
+model BookingItem {
+  id        String  @id @default(cuid())
+  bookingId String
+  productId String
+  quantity  Int
+  dailyRate Decimal @db.Decimal(10, 2)
+  deposit   Decimal @db.Decimal(10, 2)
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@unique([bookingId, productId])
+  @@index([productId])
+}
